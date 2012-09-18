@@ -1,0 +1,8 @@
+@ preconnect(connection) - ran before we connect to "connection"
+- connection: asyncore.dispatch subclass
+
+@ connect(connection) - ran immediatley after we initialize "connection" - we don't know if it will be success or not
+- connection: asyncore.dispatch sublcass
+
+@ connected(connection)
+- connection
