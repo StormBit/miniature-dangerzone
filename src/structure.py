@@ -35,16 +35,10 @@ class dangerzone(asynchat.async_chat):
     ####            asyncore            ####
     ########################################
 
-    def connection_add(self, connection):
-
-        self.connections[connection.name] = connection
-
-    def connection_del(self, connection):   pass
-
     def service_add(self):      pass
     def service_del(self):      pass
 
-    def channel_add(self):      pass    # connection, name, channel
+    def channel_add(self):      pass
     def channel_del(self):      pass
 
     def user_add(self):         pass
@@ -62,13 +56,5 @@ class dangerzone(asynchat.async_chat):
             for _event in events:
                 if _event == event:
                     hook.dispatch[event](hook, args)
-
-class connection(asyncore.dispatch):
-    def __init__(self, net, addr, port):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((addr, port))
-
-    def handle_connect(self):
 
 
