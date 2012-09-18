@@ -3,7 +3,7 @@
 # from the top down
 #
 # Copyright (c) 2012 Samuel Hoffman <sam@minicruzer.com>
-import socket, asyncore, asynchat, logging
+import socket, asyncore, asynchat, logging, time, string, random
 from inspect import stack
 
 class dangerzone(asynchat.async_chat):
@@ -14,6 +14,7 @@ class dangerzone(asynchat.async_chat):
         self.users = {}
         self.servers = {}
         self.hooks = {} # specific event.file caller
+        self.sid = '3D0' # TODO
 
     ########################################
     ####            asyncore            ####
@@ -62,6 +63,10 @@ class service(dangerzone):
         self.nick, self.user, self.host, self.gecos = nick, user, host, gecos
         self.commands = {}
         self.hooks = {}
+        self.channels = {}
+
+        self.uid = self.sid + (''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(6))
+        self.time = int(time())
 
     # command interface. if there aren't any commands, we're just going to ignore everything
     def command_add(self):      pass
@@ -85,10 +90,27 @@ class service(dangerzone):
 
     # channel actions
     def topic(self):            pass
-    def join(self):             pass
-    def part(self):             pass
+    def join(self):
+        self.channel_add()
+    def part(self):
+        self.channel_del()
+    def channel_add(self):      pass
+    def channel_del(self):      pass
 
     # misc
     def mode(self):             pass # should this be broken down to cmode and umode?
     def quit(self):             pass
     def oper(self):             pass
+
+class channel(dangerzone):
+    def __init__(self, name, users, time, topic, topic_time, topic_setter):
+        self.name, self.users, self.modes, self.time, self.topic, self.topic_time, self.topic_setter
+            = name, {}, modes, time, topic, topic_time, topic_setter
+
+    def user_add(self):         pass
+    def user_part(self):        pass
+
+    # channel actions from server
+    def mode(self):             pass
+    def topic(self):            pass
+    def kick(self):             pass
