@@ -64,31 +64,31 @@ class service(dangerzone):
         self.hooks = {}
 
     # command interface. if there aren't any commands, we're just going to ignore everything
-    def command_add(self):  pass
-    def command_del(self):  pass
-    def command_exec(self): pass
+    def command_add(self):      pass
+    def command_del(self):      pass
+    def command_exec(self):     pass
 
-    def hook_add(self):     pass
-    def hook_del(self):     pass
-    def hook_run(self):     pass
+    def hook_add(self):         pass
+    def hook_del(self):         pass
+    def hook_run(self):         pass
 
     ## commands a service can potentially do. goal: be able to almost everything
     # message types: priority should be user, then channel
-    def msg(self):          pass
-    def notice(self):       pass
-    def ctcp(self):         pass
-    def me(self):           pass
+    def msg(self):              pass
+    def notice(self):           pass
+    def ctcp(self):             pass
+    def me(self):               pass
 
     # actions against other users
-    def kill(self):         pass
-    def kick(self):         pass
+    def kill(self):             pass
+    def kick(self):             pass
 
     # channel actions
-    def topic(self):        pass
-    def join(self):         pass
-    def part(self):         pass
+    def topic(self):            pass
+    def join(self):             pass
+    def part(self):             pass
 
     # misc
-    def mode(self):         pass # should this be broken down to cmode and umode?
-    def quit(self):         pass
-    def oper(self):         pass
+    def mode(self):             pass # should this be broken down to cmode and umode?
+    def quit(self):             pass
+    def oper(self):             pass
