@@ -64,6 +64,7 @@ class service(dangerzone):
         self.commands = {}
         self.hooks = {}
         self.channels = {}
+        self.modes = {}
 
         self.uid = self.sid + (''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(6))
         self.time = int(time())
@@ -101,6 +102,12 @@ class service(dangerzone):
     def mode(self):             pass # should this be broken down to cmode and umode?
     def quit(self):             pass
     def oper(self):             pass
+
+    # checking for things
+    def has_mode(self, type):   pass
+    def is_in(self, chan):      pass
+    def is_oper(self):
+        return self.has_mode('IRC_OPERATOR')
 
 class channel(dangerzone):
     def __init__(self, name, users, time, topic, topic_time, topic_setter):
