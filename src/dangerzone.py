@@ -60,8 +60,9 @@ class dangerzone(asynchat.async_chat):
         self.hook_run('on_connect')
 
     def collect_incoming_data(self, data):
-        print('R:', data[2:-1])
-        self.recvq.append(data[2:-1])
+        data = data.decode('utf-8')
+        print('R:', data)
+        self.recvq.append(data)
 
     def found_terminator(self):
         self.protocol.parse(''.join(self.recvq))

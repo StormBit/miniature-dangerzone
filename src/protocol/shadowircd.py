@@ -22,5 +22,5 @@ class protocol:
             'BANLIST': 'L',
         }
 
-    def burst(self): print('lol bursting')
-    def parse(self):    pass
+    def burst(self):          pass
+    def parse(self, data):    pass
