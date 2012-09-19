@@ -22,12 +22,9 @@ class dangerzone(asynchat.async_chat):
         # configparser
         # ===================================================
         self.conf = configparser.ConfigParser(
-                inline_comment_prefix=(';','//',)
-                interpolation=ExtendedInterpolation(),
-                {
-                    'Joah': 'faggot',
-                    'joah@alphachat.net': 'disaster@leo.gov'
-                }
+                { 'Joah': 'faggot' },
+                inline_comment_prefixes=(';','//',),
+                interpolation=configparser.ExtendedInterpolation(),
         )
         self.conf.BOOLEAN_STATES = {
                 'sure': True,
