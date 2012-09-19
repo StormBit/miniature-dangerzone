@@ -3,36 +3,65 @@
 # from the top down
 #
 # Copyright (c) 2012 Samuel Hoffman <sam@minicruzer.com>
-import socket, asyncore, asynchat, logging, time, string, random
+import socket
+import asyncore
+import asynchat
+import logging
+import time
+import string
+import random
+import configparser
+import imp
+import os
 from inspect import stack
 
 class dangerzone(asynchat.async_chat):
-    def __init__(self, host, port):
+    def __init__(self, conffile):
+
+        # instead of initializing me('a', 'ton', 'of', 'stuff', 'here') = dangerzone(),
+        # we'll just pass the location to the config.
+        self.conf = configparser.ConfigParser()
+        if len(self.conf.read(conffile)) != 1:
+            print('Could not open conffile', conffile)
+
+        # get the protocol module
+        # TODO: clean this up so we can use absolute path. its prettier ;D
+        p = '../src/protocol/' + self.conf.get('serverinfo', 'protocol') + '.py'
+        try:
+            self.protocol = imp.load_source(p, p)
+        except Exception:
+            print('invalid protocol module', p)
+            return
+
         self.connections = {}
         self.services = {}
         self.channels = {}
         self.users = {}
         self.servers = {}
         self.hooks = {} # specific event.file caller
-        self.sid = '3D0' # TODO
 
     ########################################
     ####            asyncore            ####
-        asyncore.dispatcher.__init__(self)
+        asynchat.async_chat.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.set_terminator('\n')
         self.recvq = []
-        self.connect((host, port))
+        self.set_terminator(b'\r\n')
+        self.connect((self.conf.get('uplink', 'host'), self.conf.getint('uplink', 'port')))
 
     def handle_connect(self):
-        self.run_hook('on_connect')
+        self.hook_run('on_connect')
 
     def collect_incoming_data(self, data):
+        print('R:', data)
         self.recvq.append(data)
 
     def found_terminator(self):
-        self.parse(''.join(self.recvq))
+        self.protocol.parse(''.join(self.recvq))
         self.recvq = []
+
+    def sts(self, data):
+        print('S:', data)
+        self.push(data + '\n')
     ####            asyncore            ####
     ########################################
 
@@ -66,7 +95,7 @@ class service(dangerzone):
         self.channels = {}
         self.modes = {}
 
-        self.uid = self.sid + (''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(6))
+        self.uid = self.sid + (''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(6)))
         self.time = int(time())
 
     # command interface. if there aren't any commands, we're just going to ignore everything
@@ -111,8 +140,7 @@ class service(dangerzone):
 
 class channel(dangerzone):
     def __init__(self, name, users, time, topic, topic_time, topic_setter):
-        self.name, self.users, self.modes, self.time, self.topic, self.topic_time, self.topic_setter
-            = name, {}, modes, time, topic, topic_time, topic_setter
+        self.name, self.users, self.modes, self.time, self.topic, self.topic_time, self.topic_setter = name, {}, modes, time, topic, topic_time, topic_setter
 
     def user_add(self):         pass
     def user_part(self):        pass
@@ -121,3 +149,31 @@ class channel(dangerzone):
     def mode(self):             pass
     def topic(self):            pass
     def kick(self):             pass
+    def notice(self):           pass
+    def msg(self):              pass # experimental
+
+class user(dangerzone):
+    def __init__(self, numeric, nick, time, modes, user, host, uid, gecos):
+        self.numeric, self.nick, self.time, self.modes, self.user, self.host, self.uid = numeric, nick, time, modes, user, host, uiid
+
+        self.channels = {}
+
+    # when user joins/parts a channel
+    def channel_add(self):      pass
+    def channel_del(sefl):      pass
+
+    # actions server can take against user
+    def kill(self):             pass
+    def ban(self):              pass
+
+    # message types
+    def sno(self):              pass
+    def notice(self):           pass
+    def msg(self):              pass # experimental
+
+def main(conffile):
+    global me
+
+    me = dangerzone(conffile)
+
+    asyncore.loop()

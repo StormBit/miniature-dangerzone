@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
-import dangerzone
+import sys
+sys.path.append('../')
 
-me = dangerzone()
+from src import dangerzone
+if __name__ == '__main__':
+    dangerzone.main('../etc/dangerzone.conf')
+
