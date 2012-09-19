@@ -11,9 +11,9 @@ import time
 import string
 import random
 import configparser
-import imp
 import os
 from inspect import stack
+# from importlib import __import__
 
 class dangerzone(asynchat.async_chat):
     def __init__(self, conffile):
@@ -26,12 +26,18 @@ class dangerzone(asynchat.async_chat):
 
         # get the protocol module
         # TODO: clean this up so we can use absolute path. its prettier ;D
-        p = '../src/protocol/' + self.conf.get('serverinfo', 'protocol') + '.py'
+        p = self.conf.get('serverinfo', 'protocol')
         try:
-            self.protocol = imp.load_source(p, p)
-        except Exception:
-            print('invalid protocol module', p)
+            m_protocol = __import__('src.protocol.%s' % p, fromlist=['src.protocol'])
+        except ImportError:
+            print('could not import protocol module "%s" :(' % p)
             return
+
+        try:
+            self.protocol = m_protocol.protocol()
+            print('loaded protocol module at', self.protocol)
+        except AttributeError:
+            print("protocol module is missing protocol class. can't do anything :(")
 
         self.connections = {}
         self.services = {}
@@ -40,8 +46,9 @@ class dangerzone(asynchat.async_chat):
         self.servers = {}
         self.hooks = {} # specific event.file caller
 
-    ########################################
-    ####            asyncore            ####
+    # ===================================================
+    # asyncore
+    # ===================================================
         asynchat.async_chat.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.recvq = []
@@ -49,11 +56,12 @@ class dangerzone(asynchat.async_chat):
         self.connect((self.conf.get('uplink', 'host'), self.conf.getint('uplink', 'port')))
 
     def handle_connect(self):
+        self.protocol.burst()
         self.hook_run('on_connect')
 
     def collect_incoming_data(self, data):
-        print('R:', data)
-        self.recvq.append(data)
+        print('R:', data[2:-1])
+        self.recvq.append(data[2:-1])
 
     def found_terminator(self):
         self.protocol.parse(''.join(self.recvq))
@@ -62,8 +70,9 @@ class dangerzone(asynchat.async_chat):
     def sts(self, data):
         print('S:', data)
         self.push(data + '\n')
-    ####            asyncore            ####
-    ########################################
+    # ===================================================
+    # asyncore
+    # ===================================================
 
     def service_add(self):      pass
     def service_del(self):      pass

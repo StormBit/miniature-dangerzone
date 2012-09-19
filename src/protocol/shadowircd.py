@@ -21,3 +21,6 @@ class protocol:
             'OPMOD': 'z',
             'BANLIST': 'L',
         }
+
+    def burst(self): print('lol bursting')
+    def parse(self):    pass
