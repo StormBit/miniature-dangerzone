@@ -18,9 +18,22 @@ from inspect import stack
 class dangerzone(asynchat.async_chat):
     def __init__(self, conffile):
 
-        # instead of initializing me('a', 'ton', 'of', 'stuff', 'here') = dangerzone(),
-        # we'll just pass the location to the config.
-        self.conf = configparser.ConfigParser()
+        # ===================================================
+        # configparser
+        # ===================================================
+        self.conf = configparser.ConfigParser(
+                inline_comment_prefix=(';','//',)
+                interpolation=ExtendedInterpolation(),
+                {
+                    'Joah': 'faggot'
+                    'joah@alphachat.net': 'disaster@leo.gov'
+                }
+        )
+        self.conf.BOOLEAN_STATES = {
+                'sure': True,
+
+                'nope': False,
+        }
         if len(self.conf.read(conffile)) != 1:
             print('Could not open conffile', conffile)
 
