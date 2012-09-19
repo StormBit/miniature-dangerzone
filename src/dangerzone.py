@@ -25,7 +25,7 @@ class dangerzone(asynchat.async_chat):
                 inline_comment_prefix=(';','//',)
                 interpolation=ExtendedInterpolation(),
                 {
-                    'Joah': 'faggot'
+                    'Joah': 'faggot',
                     'joah@alphachat.net': 'disaster@leo.gov'
                 }
         )
