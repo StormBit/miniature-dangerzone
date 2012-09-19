@@ -60,7 +60,7 @@ class dangerzone(asynchat.async_chat):
         self.hook_run('on_connect')
 
     def collect_incoming_data(self, data):
-        data = data.decode('utf-8')
+        data = data.decode('utf-8') # this is so dumb
         print('R:', data)
         self.recvq.append(data)
 
