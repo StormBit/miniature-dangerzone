@@ -1,0 +1,23 @@
+Module Prefixing
+================
+the module prefix will be automatically prefixed,
+do not specify its prefix in dangerzone.conf or
+while loading modules runtime. core modules can only
+be accessed in the source. _all_ modules must be
+placed in "src/" to be visible.
+
+Protocol Modules: p_<ircd>.py
+----------------
+<ircd> is the name of the ircd protocol defined within
+the module.
+
+Plugin Modules: m_<name>.py
+--------------
+<name> should describe the function of the plugin,
+but it really doesn't matter.
+
+Core Modules: <name>.py
+------------
+<name> should describe the function of the core
+module. although it doesn't matter, avoid nonesense
+

@@ -26,15 +26,15 @@ class dangerzone(asynchat.async_chat):
 
         # get the protocol module
         # TODO: clean this up so we can use absolute path. its prettier ;D
-        p = self.conf.get('serverinfo', 'protocol')
+        p = 'p_' + self.conf.get('serverinfo', 'protocol')
         try:
-            m_protocol = __import__('src.protocol.%s' % p, fromlist=['src.protocol'])
+            m_protocol = __import__('src.%s' % p, fromlist=['src'])
         except ImportError:
             print('could not import protocol module "%s" :(' % p)
             return
 
         try:
-            self.protocol = m_protocol.protocol()
+            self.protocol = super().m_protocol.protocol(self)
             print('loaded protocol module at', self.protocol)
         except AttributeError:
             print("protocol module is missing protocol class. can't do anything :(")
@@ -74,6 +74,9 @@ class dangerzone(asynchat.async_chat):
     # ===================================================
     # asyncore
     # ===================================================
+
+    def time(self):
+        return int(time.time())
 
     def service_add(self):      pass
     def service_del(self):      pass
