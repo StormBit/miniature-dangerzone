@@ -11,7 +11,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
-.conf
+dangerzone.conf
 # Installer logs
 pip-log.txt
 
