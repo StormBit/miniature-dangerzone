@@ -70,7 +70,7 @@ class ShadowIRCd:
         self.name = 'ShadowIRCd 6+'
         self.tld = '$$'
         self.oper_only_cmode = ['CMODE_EXLIMIT', 'CMODE_PERM', 'CMODE_IMMUNE']
-        self.cflags = { 'owner': None, 'protect': '!', 'halfop': '@' }
+        self.cflags = { 'owner': None, 'protect': '!', 'halfop': '%' }
         self.perm_cmode = ['CMODE_PERM']
         self.umode_list = _shadowircd_umode_list
         self.cmode_list = _shadowircd_cmode_list
