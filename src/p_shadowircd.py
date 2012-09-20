@@ -1,32 +1,85 @@
 # protocol module for shadowircd
 # Copyright (c) 2012 Samuel Hoffman
-import dangerzone
 
-class protocol(dangerzone.dangerzone):
-    def __init__(self, me):
-        self.me = me
-        self.d_table = { 'PASS': self.password}
+_shadowircd_cmode_list = {
+        'i': 'CMODE_INVITE',
+        'm': 'CMODE_MOD',
+        'n': 'CMODE_NOEXT',
+        'p': 'CMODE_PRIV',
+        's': 'CMODE_SEC',
+        't': 'CMODE_TOPIC',
+        'c': 'CMODE_NOCOLOR',
+        'r': 'CMODE_REGONLY',
+        'z': 'CMODE_OPMOD',
+        'g': 'CMODE_FINVITE',
+        'L': 'CMODE_EXLIMIT',
+        'P': 'CMODE_PERM',
+        'F': 'CMODE_FTARGET',
+        'Q': 'CMODE_DISFWD',
+        'M': 'CMODE_IMMUNE',
+        'C': 'CMODE_NOCTCP',
+        'A': 'CMODE_ADMINONLY',
+        'O': 'CMODE_OPERONLY',
+        'Z': 'CMODE_SSLONLY',
+        'D': 'CMODE_NOACTIONS',
+        'T': 'CMODE_NONOTICE',
+        'G': 'CMODE_NOCAPS',
+        'E': 'CMODE_NOKICKS',
+        'd': 'CMODE_NONICKS',
+        'K': 'CMODE_NOREPEAT',
+        'J': 'CMODE_KICKNOREJOIN'
+}
 
-    def burst(self):
-        numeric = self.me.conf.get('serverinfo', 'numeric',
-                fallback='00B') # 00A is atheme's default, try 00B
-        password = self.me.conf.get('uplink', 'password',
-                fallback=None)
+_shadowircd_cstatus_list = {
+        'a': 'CSTATUS_PROTECT',
+        'o': 'CSTATUS_OP',
+        'h': 'CSTATUS_HALFOP',
+        'v': 'CSTATUS_VOICE'
+}
 
-        if password is None:
-            print('password required for connecting to uplink in dangerzone.conf (uplink/password)')
-            return
-        else:
-            self.me.sts('PASS %s TS 6 :%s' % (password, numeric))
+_shadowircd_prefix_list = {
+        '!': 'CSTATUS_PROTECT',
+        '@': 'CSTATUS_OP',
+        '%': 'CSTATUS_HALFOP',
+        '+': 'CSTATUS_VOICE'
+}
 
-        self.bursting = True
+_shadowircd_umode_list = {
+        'a': 'UF_ADMIN',
+        'i': 'UF_INVIS',
+        'o': 'UF_IRCOP',
+        'D': 'UF_DEAF',
+        'p': 'UF_IMMUNE'
+}
 
-        self.me.sts('CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD MLOCK')
-        self.me.sts('SERVER ' + self.me.conf.get('serverinfo', 'name') + ' 1 :%s' % self.me.conf.get('serverinfo', 'desc'))
-        self.me.sts('SVINFO 6 :%d' % self.me.time())
+def _shadowircd_login(me):
+    me.sts('PASS %s TS 6 :%s' % (me.conf.get('uplink', 'password'), me.conf.get('serverinfo', 'numeric')))
+    me.sts('CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD MLOCK')
+    me.sts('SERVER %s 1 :%s' % (me.conf.get('serverinfo', 'name'), me.conf.get('serverinfo', 'desc')))
+    me.sts('SVINFO 6 :%d' % me.time())
 
-    def parse(self, data):
-        pass
+def _shadowircd_pass(me, *stream):
+    pass
 
-    def password(self, data):
-        pass
+_shadowircd_dispatch_t = {
+        'PASS': _shadowircd_pass
+}
+
+class ShadowIRCd:
+    def __init__(self):
+        self.name = 'ShadowIRCd 6+'
+        self.tld = '$$'
+        self.oper_only_cmode = ['CMODE_EXLIMIT', 'CMODE_PERM', 'CMODE_IMMUNE']
+        self.cflags = { 'owner': None, 'protect': '!', 'halfop': '@' }
+        self.perm_cmode = ['CMODE_PERM']
+        self.umode_list = _shadowircd_umode_list
+        self.cmode_list = _shadowircd_cmode_list
+        self.cstatus_list = _shadowircd_cstatus_list
+        self.prefix_list = _shadowircd_prefix_list
+        self.login = _shadowircd_login
+        self.dispatch_t = _shadowircd_dispatch_t
+
+def _modinit(me):
+    print('using shadowircd as protocol module')
+    me.protocol = ShadowIRCd()
+

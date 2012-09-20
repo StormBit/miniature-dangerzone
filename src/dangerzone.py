@@ -12,12 +12,12 @@ import string
 import random
 import configparser
 import os
+from src import module
 from inspect import stack
-# from importlib import __import__
 
 class dangerzone(asynchat.async_chat):
     def __init__(self, conffile):
-
+        self.protocol = None
         # ===================================================
         # configparser
         # ===================================================
@@ -25,6 +25,7 @@ class dangerzone(asynchat.async_chat):
                 { 'Joah': 'faggot' },
                 inline_comment_prefixes=(';','//',),
                 interpolation=configparser.ExtendedInterpolation(),
+                allow_no_value=True
         )
         self.conf.BOOLEAN_STATES = {
                 'sure': True,
@@ -34,27 +35,28 @@ class dangerzone(asynchat.async_chat):
         if len(self.conf.read(conffile)) != 1:
             print('Could not open conffile', conffile)
 
-        # get the protocol module
-        # TODO: clean this up so we can use absolute path. its prettier ;D
-        p = 'p_' + self.conf.get('serverinfo', 'protocol')
-        try:
-            m_protocol = __import__('src.%s' % p, fromlist=['src'])
-        except ImportError:
-            print('could not import protocol module "%s" :(' % p)
-            return
+        # load all modules, load protocol first
+        proto = self.conf.get('modules', 'protocol')
+        mods = eval(self.conf.get('modules', 'load'))
 
-        try:
-            self.protocol = super().m_protocol.protocol(self)
-            print('loaded protocol module at', self.protocol)
-        except AttributeError:
-            print("protocol module is missing protocol class. can't do anything :(")
+        module.load(self, proto)
+
+        for i in mods:
+            try:
+                module.load(self, i)
+            except Exception:
+                print('could not load module', i)
+
+        # ===================================================
+        # configparser
+        # ===================================================
 
         self.connections = {}
         self.services = {}
         self.channels = {}
         self.users = {}
         self.servers = {}
-        self.hooks = {} # specific event.file caller
+        self.hooks = {}
 
     # ===================================================
     # asyncore
@@ -66,7 +68,7 @@ class dangerzone(asynchat.async_chat):
         self.connect((self.conf.get('uplink', 'host'), self.conf.getint('uplink', 'port')))
 
     def handle_connect(self):
-        self.protocol.burst()
+        self.protocol.login(self)
         self.hook_run('on_connect')
 
     def collect_incoming_data(self, data):
@@ -75,15 +77,26 @@ class dangerzone(asynchat.async_chat):
         self.recvq.append(data)
 
     def found_terminator(self):
-        self.protocol.parse(''.join(self.recvq))
-        self.recvq = []
+         line = ''.join(self.recvq)
+         parv = line.split(' ')
+
+         if parv[0] in self.protocol.dispatch_t:
+             self.protocol.dispatch_t[parv[0]](self, parv)
+
+         self.recvq = []
 
     def sts(self, data):
         print('S:', data)
-        self.push(data + '\n')
+        data = data + '\n'
+        data = data.encode('utf-8') # back to bytes before sending
+        self.push(data)
     # ===================================================
     # asyncore
     # ===================================================
+
+    def modload(self, path):
+        module = __import__('src.%s' % path, fromlist=['src'])
+        module._modinit()
 
     def time(self):
         return int(time.time())
@@ -193,6 +206,37 @@ class user(dangerzone):
     def sno(self):              pass
     def notice(self):           pass
     def msg(self):              pass # experimental
+
+class protocol(dangerzone):
+    def __init__(self,
+            name,               # str
+            tld,
+            oper_only_cmode,
+            cflag_owner,
+            cflag_protect,
+            cflag_halfop,
+            permanent_cmode,
+            cmode_list,
+            umode_list,
+            status_list,
+            prefix_list,
+            dispatch_t):
+
+        self.name = name
+        self.tld = tld
+        self.oper_only_cmode = oper_only_cmode
+        self.cflag_owner = cflag_owner
+        self.cflag_protect = clfag_protect
+        self.permant_cmode = permanent_cmode
+        self.cmode_list = cmode_list
+        self.umode_list = umode_list
+
+    def parse(self, line):
+        # split line into an array
+        parv = line.split(' ')
+
+        if parv[0] in self.dispatch_t:
+            self.dispatch_t[parv[0]](self, parv)
 
 def main(conffile):
     global me
