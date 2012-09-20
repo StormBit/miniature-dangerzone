@@ -35,17 +35,8 @@ class dangerzone(asynchat.async_chat):
         if len(self.conf.read(conffile)) != 1:
             print('Could not open conffile', conffile)
 
-        # load all modules, load protocol first
-        proto = self.conf.get('modules', 'protocol')
-        mods = eval(self.conf.get('modules', 'load'))
-
+        proto = self.conf.get('serverinfo', 'protocol')
         module.load(self, proto)
-
-        for i in mods:
-            try:
-                module.load(self, i)
-            except Exception:
-                print('could not load module', i)
 
         # ===================================================
         # configparser
