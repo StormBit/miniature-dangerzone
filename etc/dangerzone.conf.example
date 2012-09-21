@@ -4,14 +4,10 @@ desc: miniature-dangerzone
 numeric: 00A
 netname: AlphaChat
 admin: miniCruzer <sam@minicruzer.com>
-protocol: shadowircd
+protocol: src.protocol.shadowircd
 
 [uplink]
 server: nine.minicruzer.com
 host: 1.2.3.4
 password: d0ng5
 port: 16665
-
-[modules]
-protocol = shadowircd
-load on start = ()

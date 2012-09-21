@@ -56,7 +56,7 @@ def _shadowircd_login(me):
     me.sts('PASS %s TS 6 :%s' % (me.conf.get('uplink', 'password'), me.conf.get('serverinfo', 'numeric')))
     me.sts('CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD MLOCK')
     me.sts('SERVER %s 1 :%s' % (me.conf.get('serverinfo', 'name'), me.conf.get('serverinfo', 'desc')))
-    me.sts('SVINFO 6 :%d' % me.time())
+    me.sts('SVINFO 6 6 0 :%d' % me.time())
 
 def _shadowircd_pass(me, *stream):
     pass
