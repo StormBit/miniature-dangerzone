@@ -4,7 +4,7 @@ desc: miniature-dangerzone
 numeric: 00A
 netname: AlphaChat
 admin: miniCruzer <sam@minicruzer.com>
-protocol: src.protocol.shadowircd
+protocol: protocol.shadowircd
 
 [uplink]
 server: nine.minicruzer.com

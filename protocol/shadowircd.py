@@ -1,5 +1,6 @@
 # protocol module for shadowircd
 # Copyright (c) 2012 Samuel Hoffman
+import platform
 
 _shadowircd_cmode_list = {
         'i': 'CMODE_INVITE',
@@ -51,11 +52,15 @@ _shadowircd_umode_list = {
         'D': 'UF_DEAF',
         'p': 'UF_IMMUNE'
 }
-
+def get_platform_info():
+	info = 'Implementation: ' + platform.python_compiler() + platform.python_implementation() + platform.python_version() \
+		+ ' | Platform: ' + platform.platform() + ' ' + platform.processor()
+	return info
+	
 def _shadowircd_login(me):
     me.sts('PASS %s TS 6 :%s' % (me.conf.get('uplink', 'password'), me.conf.get('serverinfo', 'numeric')))
     me.sts('CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD MLOCK')
-    me.sts('SERVER %s 1 :%s' % (me.conf.get('serverinfo', 'name'), me.conf.get('serverinfo', 'desc')))
+    me.sts('SERVER %s 1 :%s' % (me.conf.get('serverinfo', 'name'), me.conf.get('serverinfo', 'desc') + get_platform_info()))
     me.sts('SVINFO 6 6 0 :%d' % me.time())
 
 def _shadowircd_pass(me, *stream):
