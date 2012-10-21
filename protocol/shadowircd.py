@@ -69,8 +69,10 @@ class ShadowIRCd:
     def __init__(self):
         self.name = 'ShadowIRCd 6+'
         self.tld = '$$'
+        self.owner = None
+        self.protect = '+a'
+        self.halfop = '+h'
         self.oper_only_cmode = ['CMODE_EXLIMIT', 'CMODE_PERM', 'CMODE_IMMUNE']
-        self.cflags = { 'owner': None, 'protect': '+a', 'halfop': '+h' }
         self.perm_cmode = ['CMODE_PERM']
         self.umode_list = _shadowircd_umode_list
         self.cmode_list = _shadowircd_cmode_list
